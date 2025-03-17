@@ -23,6 +23,11 @@ class TestProcessPDFs(unittest.TestCase):
         self.test_pdf_path = os.path.join(self.test_in_dir, "test.pdf")
         with open(self.test_pdf_path, "wb") as f:
             f.write(b"%PDF-1.4\n%Test dummy PDF content")
+        
+        # Add an image to the dummy PDF
+        self.image_path = os.path.join(self.test_in_dir, "image01.png")
+        with open(self.image_path, "wb") as img:
+            img.write(b"Image01 content")
     
     def tearDown(self):
         self.temp_dir.cleanup()
@@ -50,7 +55,7 @@ class TestProcessPDFs(unittest.TestCase):
         
         # Mock OCR process response
         mock_ocr_response = MagicMock()
-        mock_ocr_response.text = "# Test Markdown Content"
+        mock_ocr_response.text = "# Test Markdown Content\nimage01.png"
         mock_client.ocr.process.return_value = mock_ocr_response
         
         # Capture stdout for verification
@@ -76,6 +81,15 @@ class TestProcessPDFs(unittest.TestCase):
                 "document_url": "https://test-signed-url.com",
             }
         )
+        
+        # Verify image presence in OCR result
+        self.assertIn("image01.png", mock_ocr_response.text)
+        
+        # Simulate API error and verify error handling
+        mock_client.ocr.process.side_effect = Exception("API error occurred: Status 502")
+        with self.assertRaises(Exception) as context:
+            process_pdfs.process_pdfs()
+        self.assertIn("API error occurred: Status 502", str(context.exception))
         
         # Check output contains success message
         self.assertIn("Processing: test.pdf", captured_output.getvalue())

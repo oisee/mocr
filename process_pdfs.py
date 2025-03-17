@@ -417,6 +417,7 @@ def process_pdfs(dry_run=False, debug=False, extract_pdf_images=False):
             
         except Exception as e:
             print(f"Error processing {filename}: {str(e)}")
+            raise  # Propagate the exception to allow testing for error handling
     
     print("Processing complete!")
 

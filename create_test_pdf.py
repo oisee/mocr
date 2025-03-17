@@ -38,7 +38,14 @@ def create_sample_pdf(output_path="./in/sample.pdf"):
     c.drawString(100, 520, "Data 4")
     c.drawString(250, 520, "Data 5")
     c.drawString(400, 520, "Data 6")
+
+
+# Add an image
+    image_path = "./image01.png"
+    if os.path.exists(image_path):
+        c.drawImage(image_path, 300, 200, width=200, height=200)
     
+
     # Add a sentence at the bottom
     c.drawString(100, 100, "This is the last sentence in the document for testing purposes.")
     
